@@ -2,6 +2,15 @@
 install.packages("caret")
 library(caret)
 
+install.packages("e1071")
+library(e1071)
+
+install.packages("tree")
+library(tree)
+
+install.packages("ROCR")
+library(ROCR)
+
 #1: data preprocessing
 #a
 df_raw<- read.csv("C:/Users/12026/Documents/GitHub/IE-332-Project/detailed_finances_dataset.csv",header=TRUE)
@@ -17,8 +26,16 @@ Target<-as.numeric(df$X2019.PRICE.VAR....>0)
 dropped_df<-cbind(subset(df, select = -c(Operating.Expenses,Operating.Income, X2019.PRICE.VAR....)),Opr_EtI_ratio,Target)
 
 #2 Partitioning Data
-#a
-trainingRows<-createDataPartition(dropped_df$X, p=0.7, list=FALSE)
-Train <- DT[c(trainingRows)]
-Test <- DT[c(-trainingRows)]
+#d
+trainingRows<-createDataPartition(dropped_df$Sector, p=0.7, list=FALSE)
+train <- dropped_df[c(trainingRows),]
+test <- dropped_df[c(-trainingRows),]
+
+#3 Train models #### NEED TO FIND CLASSIFICATION FORMULAS: WHICH COLS ARE RELEVENT?
+#e
+modelB <- naiveBayes(Target ~ ., data = train)
+
+#f
+modelT <- tree(Target ~ ., data = train)
+
 
