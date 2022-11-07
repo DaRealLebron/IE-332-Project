@@ -35,7 +35,22 @@ test <- dropped_df[c(-trainingRows),]
 #e
 modelB <- naiveBayes(Target ~ ., data = train)
 
+predB <- predict(modelB, test)
 #f
 modelT <- tree(Target ~ ., data = train)
+
+predT<- round(predict(modelT, newdata = test)) #Not sure about this
+#4
+#g 
+# confusion matrix function
+confusionGenerator <- function(predictedDataCol, dataCol)
+{
+  result<-paste(predictedDataCol,dataCol)
+  confusionMatrix<-data.frame(table(result))
+  return(confusionMatrix)
+}
+#actual confusion matrices
+confusionMatrixB<-confusionGenerator(predB, test$Target)
+confusionMatrixT<-confusionGenerator(predT, test$Target)
 
 
