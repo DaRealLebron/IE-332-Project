@@ -22,7 +22,7 @@ df<-na.omit(df_raw[,goodCol])
 
 #c
 Opr_EtI_ratio<-df$Operating.Expenses/df$Operating.Income
-Target<-as.numeric(df$X2019.PRICE.VAR....>0)
+Target<-as.factor(as.numeric(df$X2019.PRICE.VAR....>0))
 dropped_df<-cbind(subset(df, select = -c(Operating.Expenses,Operating.Income, X2019.PRICE.VAR....)),Opr_EtI_ratio,Target)
 
 #2 Partitioning Data
@@ -31,15 +31,16 @@ trainingRows<-createDataPartition(dropped_df$Sector, p=0.7, list=FALSE)
 train <- dropped_df[c(trainingRows),]
 test <- dropped_df[c(-trainingRows),]
 
-#3 Train models #### NEED TO FIND CLASSIFICATION FORMULAS: WHICH COLS ARE RELEVENT?
+#3 Train models 
 #e
-modelB <- naiveBayes(Target ~ ., data = train)
+modelB <- naiveBayes(Target ~ ., data = train) #review
 
 predB <- predict(modelB, test)
 #f
-modelT <- tree(Target ~ ., data = train)
+detach("package:e1071") #is this needed?
+modelT <- tree(Target ~ ., data = train) #review
 
-predT<- round(predict(modelT, newdata = test)) #Not sure about this
+predT<- predict(modelT, test,type="class") 
 #4
 #g 
 # confusion matrix function
@@ -52,5 +53,70 @@ confusionGenerator <- function(predictedDataCol, dataCol)
 #actual confusion matrices
 confusionMatrixB<-confusionGenerator(predB, test$Target)
 confusionMatrixT<-confusionGenerator(predT, test$Target)
+#remember to discuss confusion matrix results and significance.
+
+#h    ROC plots
+
+#plots dont look correct, but the rest works
+spePreB <- prediction(as.numeric(predB), as.numeric(test$Target) ) #need to find the labels, maybe above in the modelT and modelB #need to find the labels, maybe above in the modelT and modelB
+perfB <- performance(spePreB, measure = "tpr", x.measure = "fpr")
+plot(perfB, col="blue")
+
+par(new=TRUE)
+
+spePreT <- prediction(as.numeric(predT), as.numeric(test$Target) ) #need to find the labels, maybe above in the modelT and modelB #need to find the labels, maybe above in the modelT and modelB
+perfT <- performance(spePreT, measure = "tpr", x.measure = "fpr")
+plot(perfT, col="red")
+
+legend(x="topleft", legend=c("Naive Bayes", "Decision Tree"), fill = c("blue","red"))
 
 
+#i resplitting data
+
+#creating new partitions:
+trainingRows1<-createDataPartition(dropped_df$Sector, p=0.3, list=FALSE)
+nTrain1 <- dropped_df[c(trainingRows1),]
+nTest1 <- dropped_df[c(-trainingRows1),]
+
+trainingRows2<-createDataPartition(dropped_df$Sector, p=0.5, list=FALSE)
+nTrain2 <- dropped_df[c(trainingRows2),]
+nTest2 <- dropped_df[c(-trainingRows2),]
+
+trainingRows3<-createDataPartition(dropped_df$Sector, p=0.8, list=FALSE)
+nTrain3 <- dropped_df[c(trainingRows3),]
+nTest3 <- dropped_df[c(-trainingRows3),]
+
+#j  training decision trees with each new partition
+
+modelT1 <- tree(Target ~ ., data = nTrain1) #review
+modelT2 <- tree(Target ~ ., data = nTrain2) #review
+modelT3 <- tree(Target ~ ., data = nTrain3) #review
+
+#k confusion and ROC for each new partition
+
+predT1<- predict(modelT1, nTest1,type="class") 
+predT2<- predict(modelT2, nTest2,type="class") 
+predT3<- predict(modelT3, nTest3,type="class") 
+
+confusionMatrixT1<-confusionGenerator(predT1, nTest1$Target)
+confusionMatrixT2<-confusionGenerator(predT2, nTest2$Target)
+confusionMatrixT3<-confusionGenerator(predT3, nTest3$Target)
+
+#plot ROCs
+spePreT1 <- prediction(as.numeric(predT1), as.numeric(nTest1$Target) ) #need to find the labels, maybe above in the modelT and modelB #need to find the labels, maybe above in the modelT and modelB
+perfT1 <- performance(spePreT1, measure = "tpr", x.measure = "fpr")
+plot(perfT1, col="blue")
+
+par(new=TRUE)
+
+spePreT2 <- prediction(as.numeric(predT2), as.numeric(nTest2$Target) ) #need to find the labels, maybe above in the modelT and modelB #need to find the labels, maybe above in the modelT and modelB
+perfT2 <- performance(spePreT2, measure = "tpr", x.measure = "fpr")
+plot(perfT2, col="red")
+
+par(new=TRUE)
+
+spePreT3 <- prediction(as.numeric(predT3), as.numeric(nTest3$Target) ) #need to find the labels, maybe above in the modelT and modelB #need to find the labels, maybe above in the modelT and modelB
+perfT3 <- performance(spePreT3, measure = "tpr", x.measure = "fpr")
+plot(perfT3, col="green")
+
+legend(1,1,x="bottomright", legend=c("Decision Tree p1","Decision Tree p2","Decision Tree p3"), fill = c("blue","red","green"))
