@@ -38,7 +38,7 @@ modelB <- naiveBayes(Target ~ ., data = train) #review
 predB <- predict(modelB, test)
 #f
 detach("package:e1071") #is this needed?
-modelT <- tree(Target ~ ., data = train) #review
+modelT <- tree(Target ~ ., data = train) #review, weird warnings
 
 predT<- predict(modelT, test,type="class") 
 #4
@@ -60,7 +60,7 @@ confusionMatrixT<-confusionGenerator(predT, test$Target)
 #plots dont look correct, but the rest works
 spePreB <- prediction(as.numeric(predB), as.numeric(test$Target) ) #need to find the labels, maybe above in the modelT and modelB #need to find the labels, maybe above in the modelT and modelB
 perfB <- performance(spePreB, measure = "tpr", x.measure = "fpr")
-plot(perfB, col="blue")
+plot(perfB, col="blue",main="Bayes vs Tree ROC Plot")
 
 par(new=TRUE)
 
@@ -68,7 +68,7 @@ spePreT <- prediction(as.numeric(predT), as.numeric(test$Target) ) #need to find
 perfT <- performance(spePreT, measure = "tpr", x.measure = "fpr")
 plot(perfT, col="red")
 
-legend(x="topleft", legend=c("Naive Bayes", "Decision Tree"), fill = c("blue","red"))
+legend(x="bottomright", legend=c("Naive Bayes", "Decision Tree"), fill = c("blue","red"))
 
 
 #i resplitting data
@@ -117,6 +117,6 @@ par(new=TRUE)
 
 spePreT3 <- prediction(as.numeric(predT3), as.numeric(nTest3$Target) ) #need to find the labels, maybe above in the modelT and modelB #need to find the labels, maybe above in the modelT and modelB
 perfT3 <- performance(spePreT3, measure = "tpr", x.measure = "fpr")
-plot(perfT3, col="green")
+plot(perfT3, col="black")
 
-legend(1,1,x="bottomright", legend=c("Decision Tree p1","Decision Tree p2","Decision Tree p3"), fill = c("blue","red","green"))
+legend(1,1,x="bottomright", legend=c("Decision Tree p1","Decision Tree p2","Decision Tree p3"), fill = c("blue","red","black"))
