@@ -33,12 +33,12 @@ test <- dropped_df[c(-trainingRows),]
 
 #3 Train models 
 #e
-modelB <- naiveBayes(Target ~ ., data = train) #review
+modelB <- naiveBayes(Target ~ ., data = train) 
 
 predB <- predict(modelB, test)
 #f
-detach("package:e1071") #is this needed?
-modelT <- tree(Target ~ ., data = train) #review, weird warnings
+detach("package:e1071") 
+modelT <- tree(Target ~ ., data = train) 
 
 predT<- predict(modelT, test,type="class") 
 #4
@@ -53,18 +53,18 @@ confusionGenerator <- function(predictedDataCol, dataCol)
 #actual confusion matrices
 confusionMatrixB<-confusionGenerator(predB, test$Target)
 confusionMatrixT<-confusionGenerator(predT, test$Target)
-#remember to discuss confusion matrix results and significance.
+
 
 #h    ROC plots
 
 #plots dont look correct, but the rest works
-spePreB <- prediction(as.numeric(predB), as.numeric(test$Target) ) #need to find the labels, maybe above in the modelT and modelB #need to find the labels, maybe above in the modelT and modelB
+spePreB <- prediction(as.numeric(predB), as.numeric(test$Target) ) 
 perfB <- performance(spePreB, measure = "tpr", x.measure = "fpr")
 plot(perfB, col="blue",main="Bayes vs Tree ROC Plot")
 
 par(new=TRUE)
 
-spePreT <- prediction(as.numeric(predT), as.numeric(test$Target) ) #need to find the labels, maybe above in the modelT and modelB #need to find the labels, maybe above in the modelT and modelB
+spePreT <- prediction(as.numeric(predT), as.numeric(test$Target) ) 
 perfT <- performance(spePreT, measure = "tpr", x.measure = "fpr")
 plot(perfT, col="red")
 
@@ -102,20 +102,32 @@ confusionMatrixT1<-confusionGenerator(predT1, nTest1$Target)
 confusionMatrixT2<-confusionGenerator(predT2, nTest2$Target)
 confusionMatrixT3<-confusionGenerator(predT3, nTest3$Target)
 
+#percentage correctly classified data function
+accuracyPerc<-function(confusionM)
+{
+  percentage<- sum(confusionM[c(1,4),2])/sum(confusionM[,2])
+  return(percentage)
+}
+
+#actual percentage values
+accPart1<-accuracyPerc(confusionMatrixT1)
+accPart2<-accuracyPerc(confusionMatrixT2)
+accPart3<-accuracyPerc(confusionMatrixT3)
+
 #plot ROCs
-spePreT1 <- prediction(as.numeric(predT1), as.numeric(nTest1$Target) ) #need to find the labels, maybe above in the modelT and modelB #need to find the labels, maybe above in the modelT and modelB
+spePreT1 <- prediction(as.numeric(predT1), as.numeric(nTest1$Target) ) 
 perfT1 <- performance(spePreT1, measure = "tpr", x.measure = "fpr")
-plot(perfT1, col="blue")
+plot(perfT1, col="blue",main="Comparison of Three Tree Models with Different Partitions")
 
 par(new=TRUE)
 
-spePreT2 <- prediction(as.numeric(predT2), as.numeric(nTest2$Target) ) #need to find the labels, maybe above in the modelT and modelB #need to find the labels, maybe above in the modelT and modelB
+spePreT2 <- prediction(as.numeric(predT2), as.numeric(nTest2$Target) ) 
 perfT2 <- performance(spePreT2, measure = "tpr", x.measure = "fpr")
 plot(perfT2, col="red")
 
 par(new=TRUE)
 
-spePreT3 <- prediction(as.numeric(predT3), as.numeric(nTest3$Target) ) #need to find the labels, maybe above in the modelT and modelB #need to find the labels, maybe above in the modelT and modelB
+spePreT3 <- prediction(as.numeric(predT3), as.numeric(nTest3$Target) ) 
 perfT3 <- performance(spePreT3, measure = "tpr", x.measure = "fpr")
 plot(perfT3, col="black")
 
