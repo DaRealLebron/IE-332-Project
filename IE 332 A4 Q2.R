@@ -1,4 +1,4 @@
-aaplData <- read.csv("C:/Users/Derrick/OneDrive - purdue.edu/Documents/AAPL_earnings_full1.csv", stringsAsFactors=FALSE)
+aaplData <- read.csv("C:/Users/12026/Documents/GitHub/IE-332-Project/AAPL_earnings_full.csv", stringsAsFactors=FALSE)
 library("quantmod")
 
 #part i
@@ -8,9 +8,10 @@ EPSactual <- aaplData$epsactual
 
 #Numerator for equation
 numerator <- EPSactual - EPSestimate
-earningSurprise <- mapply('/',numerator,EPSestimate, SIMPLIFY = FALSE) #Formula 
+earningSurprise <- numerator/EPSestimate
 earningSurprise <- na.omit(earningSurprise)
 
+#ii
 #get return values for AAPL stock for the entire range of dates
 aaplPrices <- getSymbols("AAPL", from = "1997-11-25", to = "2022-08-07", auto.assign = FALSE, periodicity = "daily")
 returnVals <- ROC(Ad(aaplPrices))
@@ -22,13 +23,8 @@ ra <-c()
 rb <-c()
 Ra <- c()
 
-#z is an attempt at using lapply, not sure where it is going wrong. Used for loop in place
-#return values rb for each event
-#z <- lapply(cp, function(i) {sum(returnVals,FROM = returnVals[cp[i]-50], END = returnVals[cp[i]-2])})
-for (i in 1:length(cp)){
-  u <- sum(returnVals,FROM = returnVals[cp[i]-50], END = returnVals[cp[i]-2])
-  rb[i] <- u
-}
+
+rb<-sapply(1:length(cp), function(i){sum(returnVals,FROM = returnVals[cp[i]-50], END = returnVals[cp[i]-2])})
 #mean return of each stock during estimation range
 mibt <- rb/49
 
@@ -36,11 +32,9 @@ mibt <- rb/49
 #returns for event/post event window
 #sum handles the ra value, then subtract m values to get 
 #summation is based on t, always subtracting by "same" m value
-for (j in 1:length(cp)){
-  t <- sum(returnVals,FROM = returnVals[cp[j]-1], END = returnVals[cp[j]+10])
-  Ra[j] <- t - mibt[j]
-}
 
+temoRa<-sapply(1:length(cp), function(j){sum(returnVals,FROM = returnVals[cp[j]-1], END = returnVals[cp[j]+10])})
+Ra1<-temoRa-mibt
 
 #Use ROC values for the return
 #piazza says to calculate return like in A2, which is ROC
