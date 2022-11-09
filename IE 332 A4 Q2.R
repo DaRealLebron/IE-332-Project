@@ -9,7 +9,8 @@ EPSactual <- aaplData$epsactual
 #Numerator for equation
 numerator <- EPSactual - EPSestimate
 earningSurprise <- numerator/EPSestimate
-earningSurprise <- na.omit(earningSurprise)
+
+earningSurprise[is.nan(earningSurprise)]<-0
 
 #ii
 #get return values for AAPL stock for the entire range of dates
