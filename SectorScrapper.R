@@ -10,7 +10,7 @@ stockIndustryFinder<-function(ticker)
   cafile <- system.file("CurlSSL", "cacert.pem", package = "RCurl") #this line already gives the path of the cafile
   cafile <- "/etc/ssl/certs/ca-certificates.crt"
   
-  link <- str_c("https://finance.yahoo.com/quote/", ticker, "/profile?p=", ticker)
+  link <- paste0("https://finance.yahoo.com/quote/", ticker, "/profile?p=", ticker)
   page <- read_html(link)
   sector <- page %>% 
     html_node(xpath = '//*[@id="Col1-0-Profile-Proxy"]/section/div[1]/div/div/p[2]/span[2]') %>%
